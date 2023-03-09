@@ -1,0 +1,11 @@
+{
+  "files.eol": "\n",
+  "prettier.enable": false,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "files.associations": {
+    "*.css": "postcss"
+  },
+  "typescript.tsdk": "node_modules/typescript/lib"
+}
