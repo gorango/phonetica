@@ -3,7 +3,6 @@ import { oneLine } from 'common-tags'
 import type { ChatCompletionRequestMessage, CreateChatCompletionRequest } from 'openai'
 import { Configuration, OpenAIApi } from 'openai'
 import { readFiles } from 'h3-formidable'
-import ffmpeg from 'fluent-ffmpeg'
 import { voices } from './voices.json'
 
 const messagesDict: Map<string, ChatCompletionRequestMessage[]> = new Map()
@@ -17,26 +16,25 @@ You also ask a lot of questions to continue the conversation or initiate a new o
 export default defineEventHandler(async (event) => {
   const files = await readFiles(event, { includeFields: false, keepExtensions: true })
   const query = getQuery(event)
+
   if (!query.id)
-    return { statusCode: 400 }
+    return { statusCode: 400, message: 'Missing id' }
+
   const audioFile = files.file[0]
   const openai = new OpenAIApi(new Configuration({ apiKey: process.env.GPT_KEY }))
-  const audioStream: any = await ffmpeg(fs.createReadStream(audioFile.filepath)).format('mp3').pipe()
-  audioStream.path = 'audio.mp3'
+  const audioStream: any = fs.createReadStream(audioFile.filepath)
 
-  const [err, resp]: [any, any] = await openai.createTranscription(audioStream, 'whisper-1')
-    .catch(err => [err])
-    .then(resp => [null, resp])
+  const resp = await openai.createTranscription(audioStream, 'whisper-1')
 
-  if (err || !resp || !resp.data)
-    return { statusCode: 500 }
+  if (!resp || !resp.data)
+    return { statusCode: 500, message: 'No response' }
 
   const { data: { text: inputText } } = resp
 
   // console.log(inputText) // eslint-disable-line no-console
 
   if (!inputText)
-    return { statusCode: 500 }
+    return { statusCode: 500, message: 'No text' }
 
   if (!messagesDict.get(query.id as string)) {
     messagesDict.set(query.id as string, [
@@ -58,14 +56,14 @@ export default defineEventHandler(async (event) => {
   const response = await openai.createChatCompletion(completionOpts)
 
   if (response.status !== 200 || !response.data?.choices.length)
-    return { statusCode: 500 }
+    return { statusCode: 500, message: 'No response from OpenAI' }
 
   const responseText = response.data?.choices[0]?.message?.content
 
   // console.log(responseText) // eslint-disable-line no-console
 
   if (!responseText)
-    return { statusCode: 500 }
+    return { statusCode: 500, message: 'No response from OpenAI' }
 
   messages.push({ role: 'assistant', content: responseText })
 
