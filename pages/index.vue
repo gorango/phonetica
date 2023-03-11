@@ -1,13 +1,19 @@
 <script setup lang="ts">
+const { state, addSession } = useChat()
+const route = useRoute()
+const router = useRouter()
+
+onMounted(() => {
+  if (!route.params.id) {
+    if (state.value?.sessions.length)
+      router.replace(state.value.sessions[state.value.sessions.length - 1].id)
+
+    else
+      addSession()
+  }
+})
 </script>
 
 <template>
-  <div
-    flex-auto flex-center self-center
-    max-w-4xl w-full h-full bg-base-100
-  >
-    <ClientOnly>
-      <Recorder />
-    </ClientOnly>
-  </div>
+  <div />
 </template>
