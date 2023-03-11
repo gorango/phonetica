@@ -1,3 +1,4 @@
+import type { ChatCompletionRequestMessage } from 'openai'
 import { nanoid } from 'nanoid'
 import { MicRecorder } from '~/lib/mp3'
 
@@ -27,7 +28,7 @@ export function useChat() {
   const router = useRouter()
 
   const session = computed(() => state.value.sessions.find?.(({ id }) => id === route.params.id))
-  const messages = computed(() => session.value?.messages)
+  const messages = computed<Message[] | undefined>(() => session.value?.messages)
 
   function addSession() {
     const id = nanoid(3)
@@ -77,12 +78,14 @@ export function useChat() {
     if (!text || !text.trim() || !messages.value)
       return
     addMessage({ text, role: 'user' })
+    const body = {
+      messages: JSON.stringify(
+        messages.value.map(({ role, text: content, name }) =>
+          ({ role, content, name }) as ChatCompletionRequestMessage),
+      ),
+    }
     addMessage({ text: '', role: 'assistant' })
-    const { data } = await useFetch('/api/chat', {
-      method: 'POST',
-      body: { text },
-      query: { id: session.value?.id },
-    })
+    const { data } = await useFetch('/api/chat', { method: 'POST', body })
     console.log(data) // eslint-disable-line no-console
     if (!data.value?.text)
       return
@@ -112,15 +115,17 @@ export function useRecorder() {
   const d = new Date()
   const id = `${d.valueOf()}-${d.getTimezoneOffset()}-${Math.round(Math.random() * 1000)}`
 
-  async function onPress() {
+  async function start() {
     isRecording.value = true
     recorder.start()
   }
-  async function onRelease() {
+  async function stop() {
     isRecording.value = false
     const [buffer, blob]: any = await recorder.stop().getMp3()
+
     if (!buffer || !blob)
       return
+
     const inputAudioBlob = new File(buffer, 'input.mp3', {
       type: blob.type,
       lastModified: Date.now(),
@@ -142,15 +147,13 @@ export function useRecorder() {
 
   function toggleRecorder() {
     if (isRecording.value)
-      onRelease()
+      stop()
     else
-      onPress()
+      start()
   }
 
   return {
     isRecording,
     toggleRecorder,
-    onPress,
-    onRelease,
   }
 }

@@ -27,22 +27,16 @@ function onSubmit() {
     </button>
     <ClientOnly>
       <button
-        v-if="!isRecording"
         btn h-8 w-8 flex-center
-        hover:bg-error-content text-error outline-error
-        title="Record"
+        :class="{
+          'hover:bg-error-content text-error outline-error': !isRecording,
+          'bg-error text-error-content outline-error': isRecording,
+        }"
+        :title="!isRecording ? 'Record' : 'Stop Recording'"
         @click="toggleRecorder"
       >
-        <span i-ph-microphone-bold />
-      </button>
-      <button
-        v-else
-        btn h-8 w-8 flex-center
-        bg-error text-error-content outline-error
-        title="Stop recording"
-        @click="toggleRecorder"
-      >
-        <span i-ph-microphone-slash-bold />
+        <span v-if="!isRecording" i-ph-microphone-bold />
+        <span v-else i-ph-microphone-slash-bold />
       </button>
     </ClientOnly>
   </div>

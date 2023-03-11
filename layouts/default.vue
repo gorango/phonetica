@@ -83,7 +83,7 @@ const isActiveSound = ref(false)
             title="Theme Settings"
           >
             <AMenu v-model="isActiveTheme" placement="bottom-end" target="#theme-container" persist="content">
-              <div bg-neutral my-4 rounded grid grid-cols-2 p-1 gap-1 w-32>
+              <div bg-neutral my-4 rounded grid grid-cols-2 p-1 gap-1 w-32 @click.stop.prevent>
                 <button
                   v-for="theme in themes"
                   :key="theme"
@@ -122,19 +122,18 @@ const isActiveSound = ref(false)
                   </template>
                 </button>
                 <div flex gap-2 items-center>
-                  <button btn h-8 w-8 flex-center bg-base-300 text-base-content @click="state.audio.playbackRate -= 0.25">
+                  <button btn h-8 w-8 flex-center bg-base-300 text-base-content :disabled="state.audio.playbackRate === 0.25" @click="state.audio.playbackRate = Math.max(state.audio.playbackRate - 0.25, 0.25)">
                     <span i-ph-arrow-fat-lines-down-bold />
                   </button>
-                  <div flex flex-col items-center>
-                    <!-- <span text-xs>Speed</span> -->
-                    <input
+                  <div flex flex-col items-center w-14>
+                    <!-- <input
                       v-model="state.audio.playbackRate"
-                      type="number"
-                      step="0.25"
-                      bg-transparent w-14 text-center
-                    >
+                      type="number" step="0.25" min="0.25" max="3.5"
+                      bg-transparent w-full text-center
+                    > -->
+                    {{ state.audio.playbackRate.toFixed(2) }}
                   </div>
-                  <button btn h-8 w-8 flex-center bg-base-300 text-base-content @click="state.audio.playbackRate += 0.25">
+                  <button btn h-8 w-8 flex-center bg-base-300 text-base-content :disabled="state.audio.playbackRate === 3.5" @click="state.audio.playbackRate = Math.min(state.audio.playbackRate + 0.25, 3.5)">
                     <span i-ph-arrow-fat-lines-up-bold />
                   </button>
                 </div>

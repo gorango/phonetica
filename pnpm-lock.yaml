@@ -8,11 +8,9 @@ specifiers:
   '@kidonng/daisyui': ^2.51.3
   '@nuxtjs/color-mode': ^3.2.0
   '@pinia/nuxt': ^0.4.7
-  '@types/common-tags': ^1.8.1
   '@types/marked': ^4.0.8
   '@unocss/nuxt': ^0.50.4
   '@vueuse/nuxt': ^9.13.0
-  common-tags: ^1.8.2
   eslint: ^8.35.0
   h3: ^1.5.0
   h3-formidable: ^0.2.2
@@ -20,7 +18,6 @@ specifiers:
   marked: ^4.2.12
   nanoid: ^4.0.1
   nuxt: 3.2.3
-  nuxt-server-fn: ^0.3.0
   openai: ^3.2.1
   pinia: ^2.0.33
   typescript: ^4.9.5
@@ -34,11 +31,9 @@ devDependencies:
   '@kidonng/daisyui': 2.51.3
   '@nuxtjs/color-mode': 3.2.0
   '@pinia/nuxt': 0.4.7_typescript@4.9.5
-  '@types/common-tags': 1.8.1
   '@types/marked': 4.0.8
   '@unocss/nuxt': 0.50.4
   '@vueuse/nuxt': 9.13.0_nuxt@3.2.3
-  common-tags: 1.8.2
   eslint: 8.35.0
   h3: 1.5.0
   h3-formidable: 0.2.2_h3@1.5.0
@@ -46,7 +41,6 @@ devDependencies:
   marked: 4.2.12
   nanoid: 4.0.1
   nuxt: 3.2.3_ycpbpc6yetojsgtrx3mwntkhsu
-  nuxt-server-fn: 0.3.0
   openai: 3.2.1
   pinia: 2.0.33_typescript@4.9.5
   typescript: 4.9.5
@@ -1839,10 +1833,6 @@ packages:
     engines: {node: '>=10.13.0'}
     dev: true
 
-  /@types/common-tags/1.8.1:
-    resolution: {integrity: sha512-20R/mDpKSPWdJs5TOpz3e7zqbeCNuMCPhV7Yndk9KU2Rbij2r5W4RzwDPkzC+2lzUqXYu9rFzTktCBnDjHuNQg==}
-    dev: true
-
   /@types/estree/1.0.0:
     resolution: {integrity: sha512-WulqXMDUTYAXCjZnk6JtIHPigp55cVtDgDrO2gHRwhyJto21+1zbVCtOYB2L1F9w4qCQ0rOGWBnBe0FNTiEJIQ==}
     dev: true
@@ -3117,11 +3107,6 @@ packages:
   /commander/8.3.0:
     resolution: {integrity: sha512-OkTL9umf+He2DZkUq8f8J9of7yL6RJKI24dVITBmNfZBmri9zYZQrKkuXiKhyfPSu8tUhnVBB1iKXevvnlR4Ww==}
     engines: {node: '>= 12'}
-    dev: true
-
-  /common-tags/1.8.2:
-    resolution: {integrity: sha512-gk/Z852D2Wtb//0I+kRFNKKE9dIIVirjoqPoA1wJU+XePVXZfGeBpk45+A1rKO4Q43prqWBNY/MiIeRLbPWUaA==}
-    engines: {node: '>=4.0.0'}
     dev: true
 
   /commondir/1.0.1:
@@ -5900,20 +5885,6 @@ packages:
       fsevents: 2.3.2
     dev: true
 
-  /nuxt-server-fn/0.3.0:
-    resolution: {integrity: sha512-zDdsy9HQbp0ARmkj6OLmPu+f67yiIkBGFDxtJ4R9jyjZXXV6HljHN98vn4+6pSZ/33HkhOFsLYrrQbRgKrhcGQ==}
-    dependencies:
-      '@nuxt/kit': 3.0.0
-      fast-glob: 3.2.12
-      h3: 1.5.0
-      ofetch: 1.0.0
-      ohash: 1.0.0
-      ufo: 1.0.1
-    transitivePeerDependencies:
-      - rollup
-      - supports-color
-    dev: true
-
   /nuxt/3.2.3_ycpbpc6yetojsgtrx3mwntkhsu:
     resolution: {integrity: sha512-e211l9XQYvb2cUv5ji+IsX8305QyozUk5pFMyl7oAFssONzPNK4AXq7ZUzXd8qtxStsyByOgQDdAF353sQayOg==}
     engines: {node: ^14.18.0 || ^16.10.0 || ^17.0.0 || ^18.0.0 || ^19.0.0}
@@ -6020,14 +5991,6 @@ packages:
       call-bind: 1.0.2
       define-properties: 1.1.4
       es-abstract: 1.21.0
-    dev: true
-
-  /ofetch/1.0.0:
-    resolution: {integrity: sha512-d40aof8czZFSQKJa4+F7Ch3UC5D631cK1TTUoK+iNEut9NoiCL+u0vykl/puYVUS2df4tIQl5upQcolIcEzQjQ==}
-    dependencies:
-      destr: 1.2.2
-      node-fetch-native: 1.0.1
-      ufo: 1.1.1
     dev: true
 
   /ofetch/1.0.1:

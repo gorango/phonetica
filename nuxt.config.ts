@@ -9,7 +9,6 @@ export default defineNuxtConfig({
     '@unocss/nuxt',
     '@pinia/nuxt',
     '@nuxtjs/color-mode',
-    'nuxt-server-fn',
   ],
   experimental: {
     reactivityTransform: true,
@@ -24,10 +23,5 @@ export default defineNuxtConfig({
     preference: 'system',
     dataValue: 'theme',
     classSuffix: '',
-  },
-  build: {
-    transpile: [
-      'nuxt-server-fn',
-    ],
   },
 })

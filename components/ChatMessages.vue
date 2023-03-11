@@ -1,14 +1,43 @@
 <script setup lang="ts">
 import { marked } from 'marked'
+import type { Message } from '~/composables/chat'
 
-const { messages } = useChat()
+const { session, messages, sendChat } = useChat()
 
-function toggleEdit({ id }: any) {
-  if (!messages.value?.length)
+const messageRefs = ref<Record<string, any>>({})
+
+function toggleEdit({ id, role, text, isEditing }: Message & any, cancel = false) {
+  if (!messages.value?.length || !session.value?.messages?.length)
     return
+
+  clearSelection()
+
   messages.value.forEach((message) => {
     message.isEditing = message.id === id ? !message.isEditing : false
   })
+
+  if (!isEditing) {
+    nextTick().then(() => {
+      messageRefs.value[id]?.querySelector?.('textarea')?.focus()
+    })
+  }
+  else if (!cancel) {
+    if (role === 'system') {
+      const text = messages.value[1].text
+      session.value.messages = session.value.messages.slice(0, 1)
+      sendChat(text)
+    }
+    else {
+      const messageIndex = messages.value.findIndex(message => message.id === id)
+      session.value.messages = session.value.messages.slice(0, messageIndex)
+      sendChat(text)
+    }
+  }
+}
+
+function clearSelection() {
+  if (window.getSelection)
+    window.getSelection()?.empty() || window.getSelection()?.removeAllRanges()
 }
 </script>
 
@@ -18,14 +47,16 @@ function toggleEdit({ id }: any) {
     flex flex-col justify-end gap-3 py-3
   >
     <ClientOnly>
-      <template v-for="message in messages" :key="message.id">
+      <template v-for="message, i in messages" :key="message.id">
         <div
+          :ref="el => messageRefs[message.id] = el"
           w-full flex items-start gap-3 px-3
           class="group"
           :class="{
             'bg-base-content text-base-300': message.isEditing,
           }"
         >
+          <!-- Avatar Start -->
           <div
             min-w-7 h-7 my-4 rounded-full flex-center
             :class="{
@@ -38,7 +69,8 @@ function toggleEdit({ id }: any) {
             <span v-if="message.role === 'assistant'" i-ph-brain-bold />
             <span v-if="message.role === 'user'" i-ph-user-bold />
           </div>
-          <div relative flex flex-col w-full>
+          <!-- Message Start -->
+          <div relative flex flex-col w-full @dblclick="message.role !== 'assistant' && toggleEdit(message)">
             <span
               v-if="message.role === 'system'"
               text-xs uppercase absolute text-neutral-content text-opacity-50 transition-top
@@ -46,13 +78,14 @@ function toggleEdit({ id }: any) {
               v-text="'System prompt'"
             />
             <template v-if="!message.isEditing">
-              <div v-if="message.text.length" prose v-html="marked.parse(message.text)" />
+              <div v-if="message.text.length" prose :class="{ 'opacity-80': message.role === 'system' }" v-html="marked.parse(message.text)" />
               <div v-else prose v-html="'<p>...</p>'" />
             </template>
             <template v-else>
-              <TextArea v-model="message.text" tabindex="0" min-h-7 my-4 w-full @close="message.isEditing = false" />
+              <TextArea v-model="message.text" tabindex="0" min-h-7 my-4 w-full @submit="toggleEdit(message)" @close="toggleEdit(message, true)" />
             </template>
           </div>
+          <!-- Controls Start -->
           <div
             v-if="!message.isEditing"
             flex-auto h-7 my-4 flex justify-end gap-2
@@ -67,7 +100,7 @@ function toggleEdit({ id }: any) {
               <button v-if="message.audio" title="Play audio" btn w-7 h-7 hover:bg-neutral hover:text-neutral-content>
                 <span i-ph-speaker-high-bold />
               </button>
-              <button v-if="!message.text" title="Reload response" btn w-7 h-7 hover:bg-neutral hover:text-neutral-content>
+              <button v-if="!message.text" title="Reload response" btn w-7 h-7 hover:bg-neutral hover:text-neutral-content @click="toggleEdit(messages?.[i - 1]); toggleEdit(messages?.[i - 1])">
                 <span i-ph-arrows-counter-clockwise-bold />
               </button>
             </template>
@@ -82,9 +115,9 @@ function toggleEdit({ id }: any) {
             flex-auto h-7 my-4 flex justify-end gap-2
           >
             <button title="Update message" btn w-6 h-6 bg-success text-success-content @click="toggleEdit(message)">
-              <span i-ph-check-bold />
+              <span i-ph-arrows-counter-clockwise-bold />
             </button>
-            <button title="Cancel edit" btn w-6 h-6 bg-error text-error-content @click="toggleEdit(message)">
+            <button title="Cancel edit" btn w-6 h-6 bg-error text-error-content @click="toggleEdit(message, true)">
               <span i-ph-x-bold />
             </button>
           </div>
