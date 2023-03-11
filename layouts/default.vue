@@ -4,6 +4,7 @@ const { state, addSession, removeSession } = useChat()
 const { themes, set } = useTheme()
 const route = useRoute()
 const { ssrContext } = useNuxtApp()
+const { breakpoints } = useTheme()
 
 const sessions = computed(() => [
   ...state.value?.sessions
@@ -39,7 +40,12 @@ const isActiveSound = ref(false)
         hover:bg-primary hover:text-primary-content text-base-content
         @click="addSession()"
       >
-        New Chat
+        <template v-if="breakpoints.sm">
+          New Chat
+        </template>
+        <template v-else>
+          <span i-ph-plus-bold />
+        </template>
       </button>
       <ClientOnly>
         <div

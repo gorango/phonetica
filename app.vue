@@ -9,6 +9,9 @@ useHead({
 </script>
 
 <template>
+  <ClientOnly>
+    <VitePwaManifest />
+  </ClientOnly>
   <NuxtLayout>
     <NuxtPage />
   </NuxtLayout>

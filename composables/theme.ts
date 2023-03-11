@@ -1,3 +1,5 @@
+import { breakpointsTailwind } from '@vueuse/core'
+
 const themes = [
   'light',
   'dark',
@@ -16,6 +18,14 @@ const themes = [
 export function useTheme() {
   const colorMode = useColorMode()
   const cycle = useCycleList(themes)
+  const screen = useBreakpoints(breakpointsTailwind)
+  const breakpoints = reactive({
+    sm: screen.greater('sm'),
+    md: screen.greater('md'),
+    lg: screen.greater('lg'),
+    xl: screen.greater('xl'),
+    xxl: screen.greater('2xl'),
+  })
 
   onMounted(() => {
     cycle.index.value = themes.indexOf(colorMode.preference)
@@ -35,6 +45,7 @@ export function useTheme() {
     themes,
     colorMode,
     cycle,
+    breakpoints,
     next,
     set,
   }
