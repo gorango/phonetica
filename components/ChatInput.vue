@@ -29,10 +29,10 @@ function onSubmit() {
       <button
         btn h-8 w-8 flex-center
         :class="{
-          'hover:bg-error-content text-error outline-error': !isRecording,
+          'bg-error-content text-error outline-error': !isRecording,
           'bg-error text-error-content outline-error': isRecording,
         }"
-        :title="!isRecording ? 'Record' : 'Stop Recording'"
+        :title="!isRecording ? 'Start Recording' : 'Stop Recording'"
         @click="toggleRecorder"
       >
         <span v-if="!isRecording" i-ph-microphone-bold />

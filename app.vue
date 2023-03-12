@@ -3,7 +3,7 @@ useHead({
   title: 'Phonetica',
   link: [
     { rel: 'icon', type: 'image/svg+xml', href: '/logo.svg' },
-    { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css?family=Prompt' },
+    { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css?family=Ubuntu' },
   ],
 })
 </script>
@@ -22,6 +22,6 @@ a {
   cursor: pointer;
 }
 body {
-  font-family: 'Prompt', sans-serif;
+  font-family: 'Ubuntu', sans-serif;
 }
 </style>

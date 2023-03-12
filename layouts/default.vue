@@ -33,24 +33,24 @@ const isActiveSound = ref(false)
     <nav
       sticky top-0 z-1 select-none
       bg-base-300 text-base-content
-      w-full flex items-center justify-start self-center h14 px3 gap3
+      w-full flex items-center justify-start self-center h-14 px-3 gap-3
     >
-      <button
-        btn flex-center h-8 w-auto flex-nowrap whitespace-nowrap px-2
-        hover:bg-primary hover:text-primary-content text-base-content
-        @click="addSession()"
-      >
-        <template v-if="breakpoints.sm">
-          New Chat
-        </template>
-        <template v-else>
-          <span i-ph-plus-bold />
-        </template>
-      </button>
       <ClientOnly>
+        <button
+          btn flex-center h-8 w-auto flex-nowrap whitespace-nowrap px-2
+          hover:bg-primary hover:text-primary-content text-base-content
+          @click="addSession()"
+        >
+          <template v-if="breakpoints.sm">
+            New Chat
+          </template>
+          <template v-else>
+            <span i-ph-plus-bold />
+          </template>
+        </button>
         <div
           ref="sessionScrollRef"
-          flex-auto flex items-center gap-1 overflow-x-auto scroll-smooth py-2
+          flex-auto flex items-center gap-1 overflow-x-auto scroll-smooth py-2 mx--2
           @mousewheel="scrollX"
         >
           <div h-10 min-w-6 sticky left-0 bg-gradient-to-r from-base-300 to-transparent z-1 />
