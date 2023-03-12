@@ -14,11 +14,13 @@ export default defineNuxtConfig({
   experimental: {
     reactivityTransform: true,
     inlineSSRStyles: false,
+    payloadExtraction: false,
   },
   css: [
     '@unocss/reset/tailwind.css',
     '@kidonng/daisyui/base/index.css',
     '@kidonng/daisyui/themes/index.css',
+    '~/styles/typography.css',
   ],
   colorMode: {
     preference: 'system',

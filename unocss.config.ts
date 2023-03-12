@@ -2,7 +2,6 @@ import {
   defineConfig,
   presetAttributify,
   presetIcons,
-  presetTypography,
   presetUno,
   presetWebFonts,
   transformerDirectives,
@@ -25,7 +24,6 @@ export default defineConfig({
         'vertical-align': 'middle',
       },
     }),
-    presetTypography(),
     presetWebFonts({
       fonts: {
         sans: 'DM Sans',

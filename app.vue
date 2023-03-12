@@ -22,6 +22,17 @@ a {
   cursor: pointer;
 }
 body {
+  background-color: hsla(var(--n), .75);
   font-family: 'Ubuntu', sans-serif;
+  scroll-behavior: smooth;
+}
+* {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+*::-webkit-scrollbar {
+  width: 0 !important;
+  height: 0 !important;
+  display: none !important;
 }
 </style>

@@ -155,18 +155,3 @@ const isActiveSound = ref(false)
     <slot />
   </div>
 </template>
-
-<style>
-body {
-  background-color: hsla(var(--n), .75);
-}
-* {
-  scrollbar-width: none !important;
-  -ms-overflow-style: none !important;
-}
-*::-webkit-scrollbar {
-  width: 0 !important;
-  height: 0 !important;
-  display: none !important;
-}
-</style>
