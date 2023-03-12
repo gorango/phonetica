@@ -12,17 +12,20 @@
       leave-to-class="opacity-0 translate-y--1"
     >
       <div
-        v-if="$pwa?.needRefresh"
-        fixed top-0 right-0 p-4 max-w-64 bg-neutral text-neutral-content
+        v-if="$pwa?.offlineReady || $pwa?.needRefresh"
+        fixed z-1 top-0 right-0 p-4 max-w-64 bg-neutral text-neutral-content
         role="alert"
       >
         <div>
-          <span>
-            New content available, reload to update.
+          <span v-if="$pwa.offlineReady">
+            App ready for offline browsing.
+          </span>
+          <span v-else>
+            New content available, click on reload button to update.
           </span>
         </div>
         <div flex gap-2 mt-2>
-          <button btn bg-primary text-primary-content px-2 py-1 @click="$pwa.updateServiceWorker()">
+          <button v-if="$pwa.needRefresh" btn bg-primary text-primary-content px-2 py-1 @click="$pwa.updateServiceWorker()">
             Reload
           </button>
           <button btn bg-base-100 text-base-content px-2 py-1 @click="$pwa.cancelPrompt()">
@@ -42,12 +45,12 @@
     >
       <div
         v-if="$pwa?.showInstallPrompt && !$pwa?.offlineReady && !$pwa?.needRefresh"
-        fixed top-0 right-0 p-4 max-w-64 bg-neutral text-neutral-content
+        fixed top-0 z-1 right-0 p-4 max-w-64 bg-neutral text-neutral-content
         role="alert"
       >
         <div>
           <span>
-            Install PWA
+            Install App
           </span>
         </div>
         <div flex gap-2 mt-2>
