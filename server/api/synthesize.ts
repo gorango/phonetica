@@ -8,11 +8,7 @@ export default defineEventHandler(async (event) => {
 
   const { text: inputText } = body
 
-  // console.log(inputText) // eslint-disable-line no-console
-
   const { audioContent: audioBase64 }: any = await getAudio(inputText)
-
-  // console.log(audioBase64) // eslint-disable-line no-console
 
   return {
     statusCode: 200,
@@ -23,8 +19,6 @@ export default defineEventHandler(async (event) => {
 async function getAudio(text: string) {
   const lang = await detectLang(text)
   const voice = voices.find(({ languageCodes }) => languageCodes.find(code => code.startsWith(lang)))
-
-  // console.log(voice) // eslint-disable-line no-console
 
   if (!voice)
     return { audioContent: '' }
@@ -40,8 +34,6 @@ async function getAudio(text: string) {
       audioEncoding: 'MP3',
     },
   }
-
-  // console.log(ttsConfig.voice) // eslint-disable-line no-console
 
   const url = `https://texttospeech.googleapis.com/v1/text:synthesize?key=${process.env.GGL_KEY}`
   return $fetch(url, { method: 'POST', body: JSON.stringify(ttsConfig) })

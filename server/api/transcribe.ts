@@ -14,8 +14,6 @@ export default defineEventHandler(async (event) => {
 
   const { data: { text: inputText } } = resp
 
-  // console.log(inputText) // eslint-disable-line no-console
-
   if (!inputText)
     return { statusCode: 500, message: 'No text' }
 

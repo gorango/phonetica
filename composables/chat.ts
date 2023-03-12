@@ -86,7 +86,6 @@ export function useChat() {
     }
     addMessage({ text: '', role: 'assistant' })
     const { data } = await useFetch('/api/chat', { method: 'POST', body })
-    console.log(data) // eslint-disable-line no-console
     if (!data.value?.text)
       return
     const { text: responseText } = data.value
@@ -140,7 +139,6 @@ export function useRecorder() {
       // responseType: 'stream',
     })
     const text = data.value?.text
-    console.log(text) // eslint-disable-line no-console
     if (text)
       sendChat(text)
   }

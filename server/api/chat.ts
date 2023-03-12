@@ -25,8 +25,6 @@ export default defineEventHandler(async (event) => {
   if (response.status !== 200 || !responseText)
     return { statusCode: 500, message: 'No response from OpenAI' }
 
-  // console.log(responseText) // eslint-disable-line no-console
-
   return {
     statusCode: 200,
     text: responseText,
