@@ -1,13 +1,14 @@
 import { voices } from './voices.json'
 
+const languages = new Set(voices.map(({ languageCodes }) => languageCodes[0].split('-')[0]))
+
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
 
-  if (!body || !body.text)
+  if (!body || !body.content)
     return { statusCode: 500, message: 'No body' }
 
-  const { text: inputText } = body
-
+  const { content: inputText } = body
   const { audioContent: audioBase64 }: any = await getAudio(inputText)
 
   return {
@@ -18,9 +19,9 @@ export default defineEventHandler(async (event) => {
 
 async function getAudio(text: string) {
   const lang = await detectLang(text)
-  const voice = voices.find(({ languageCodes }) => languageCodes.find(code => code.startsWith(lang)))
+  const voice = findVoice(lang)
 
-  if (!voice)
+  if (!lang || !voice)
     return { audioContent: '' }
 
   const ttsConfig = {
@@ -39,26 +40,40 @@ async function getAudio(text: string) {
   return $fetch(url, { method: 'POST', body: JSON.stringify(ttsConfig) })
 }
 
-const languages = new Set(
-  voices
-    .map(({ languageCodes }) => languageCodes[0].split('-')[0])
-    .sort(),
-)
-
 async function detectLang(text: string): Promise<string> {
   const url = `https://translation.googleapis.com/language/translate/v2/detect?key=${process.env.GGL_KEY}`
   const { data }: any = await $fetch(url, { method: 'POST', body: JSON.stringify({ q: text }) })
-
-  if (!data)
-    return 'en'
-
-  const lang = data?.detections[0][0]?.language
-  if (!languages.has(lang))
-    return coerce(lang)
-  return lang
+  return data?.detections[0][0]?.language || 'en'
 }
 
-function coerce(lang: string) {
+function findVoice(lang: string) {
+  lang = languages.has(lang) ? lang : coerceLang(lang)
+  const found = voices
+    .filter(({ languageCodes, name }) =>
+      languageCodes.find(code => code.startsWith(lang))
+      && name.split('-')[2] === 'Standard',
+    )
+    .sort(({ name: na, ssmlGender: ga }, { name: nb, ssmlGender: gb }) => {
+      const ra = na.split('-')[1]
+      const rb = nb.split('-')[1]
+      const r = 'US'
+      const g = 'FEMALE'
+      // prefer US voices
+      if (ra === r && rb !== r)
+        return -1
+      if (ra !== r && rb === r)
+        return 1
+      // prefer FEMALE voices
+      if (ga === g && gb !== g)
+        return -1
+      if (ga !== g && gb === g)
+        return 1
+      return 0
+    })
+  return found[0]
+}
+
+function coerceLang(lang: string) {
   switch (lang) {
     case 'bs':
     case 'hr':

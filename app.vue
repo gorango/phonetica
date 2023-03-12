@@ -22,7 +22,11 @@ a {
   cursor: pointer;
 }
 body {
-  background-color: hsla(var(--n), .75);
+  background:
+    linear-gradient(225deg, hsla(var(--a), .1), transparent),
+    linear-gradient(45deg, hsla(var(--s), .1), transparent),
+    linear-gradient(345deg, hsla(var(--p), .1), transparent),
+    hsla(var(--n), 0.8);
   font-family: 'Ubuntu', sans-serif;
   scroll-behavior: smooth;
 }

@@ -2,9 +2,11 @@
 </script>
 
 <template>
-  <div flex flex-col min-h-screen max-w-3xl w-full mx-auto shadow-xl shadow-neutral>
-    <TheNav />
-    <slot />
-    <ThePwaPrompts />
-  </div>
+  <main flex min-h-screen w-full md:py-14>
+    <div flex-auto flex flex-col max-w-3xl w-full mx-auto shadow-xl shadow-neutral>
+      <TheNav />
+      <slot />
+      <ThePwaPrompts />
+    </div>
+  </main>
 </template>

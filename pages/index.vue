@@ -7,7 +7,6 @@ onMounted(() => {
   if (!route.params.id) {
     if (state.value?.sessions.length)
       router.replace(state.value.sessions[state.value.sessions.length - 1].id)
-
     else
       addSession()
   }

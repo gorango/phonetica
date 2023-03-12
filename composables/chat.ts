@@ -1,12 +1,8 @@
 import type { ChatCompletionRequestMessage } from 'openai'
 import { nanoid } from 'nanoid'
-import { MicRecorder } from '~/lib/mp3'
 
-export interface Message {
+export interface Message extends ChatCompletionRequestMessage {
   id: string
-  text: string
-  role: 'user' | 'assistant' | 'system'
-  name?: string
   audio?: Blob
   isEditing?: boolean
 }
@@ -20,15 +16,17 @@ export function useChat() {
   const state = useLocalStorage('phonetica', {
     audio: {
       isMuted: false,
-      playbackRate: 1.25,
+      playbackRate: 1.5,
     },
     sessions: [] as Session[],
   })
   const route = useRoute()
   const router = useRouter()
 
-  const session = computed(() => state.value.sessions.find?.(({ id }) => id === route.params.id))
+  const session = computed<Session | undefined>(() => state.value.sessions.find?.(({ id }) => id === route.params.id))
   const messages = computed<Message[] | undefined>(() => session.value?.messages)
+
+  const messageRefs = ref<Record<string, any>>({})
 
   function addSession() {
     const id = nanoid(3)
@@ -44,24 +42,61 @@ export function useChat() {
       router.replace('/')
   }
 
-  function addMessage({ text, role }: Pick<Message, 'text' | 'role'>) {
+  function addMessage({ content, role }: Pick<Message, 'content' | 'role'>) {
     if (!session.value)
       return
-    const message = { text, role, id: nanoid(6) }
+    const message = { content, role, id: nanoid(6) }
     session.value.messages?.push(message)
     scrollToBottom()
     return message
   }
 
-  async function scrollToBottom() {
-    await nextTick()
-    window.scrollTo(0, document.body.scrollHeight)
+  function toggleMessage({ id, role, content, isEditing }: Message, cancel = false) {
+    if (!messages.value?.length || !session.value?.messages?.length)
+      return
+
+    if (window.getSelection)
+      window.getSelection()?.empty() || window.getSelection()?.removeAllRanges()
+
+    messages.value.forEach((message) => {
+      message.isEditing = message.id === id ? !message.isEditing : false
+    })
+
+    if (!isEditing) {
+      return nextTick().then(() => {
+        messageRefs.value[id]?.querySelector?.('textarea')?.focus()
+      })
+    }
+
+    if (cancel)
+      return
+
+    if (role === 'system') {
+      const content = messages.value[1]?.content
+      session.value.messages = session.value.messages.slice(0, 1)
+      content && submitChat(content)
+    }
+    else {
+      const messageIndex = messages.value.findIndex(message => message.id === id)
+      session.value.messages = session.value.messages.slice(0, messageIndex)
+      submitChat(content)
+    }
   }
 
-  async function synthesizeChat(text: string) {
+  function retryMessage({ id }: Message) {
+    if (!messages.value)
+      return
+    const prevIndex = messages.value.findIndex(message => message.id === id) - 1
+    const prevMessage = messages.value[prevIndex]
+    if (session.value?.messages?.length)
+      session.value.messages = session.value.messages.slice(0, prevIndex)
+    submitChat(prevMessage.content)
+  }
+
+  async function synthesizeChat(content: string) {
     const { data } = await useFetch('/api/synthesize', {
       method: 'POST',
-      body: { text },
+      body: { content },
     })
     if (!data.value?.audio)
       return
@@ -70,88 +105,50 @@ export function useChat() {
     const outputAudioBlob = new Blob([bytes.buffer], { type: 'audio/mp3' })
     const url = URL.createObjectURL(outputAudioBlob)
     const audio = new Audio(url)
-    audio.playbackRate = state.value.audio.playbackRate || 1.25
+    audio.playbackRate = state.value.audio.playbackRate || 1.5
     audio.play()
   }
 
-  async function sendChat(text: string) {
-    if (!text || !text.trim() || !messages.value)
+  async function submitChat(content: string) {
+    if (!content || !content.trim() || !messages.value)
       return
-    addMessage({ text, role: 'user' })
+    addMessage({ content, role: 'user' })
     const body = {
       messages: JSON.stringify(
-        messages.value.map(({ role, text: content, name }) =>
+        messages.value.map(({ role, content, name }) =>
           ({ role, content, name }) as ChatCompletionRequestMessage),
       ),
     }
-    addMessage({ text: '', role: 'assistant' })
-    const { data } = await useFetch('/api/chat', { method: 'POST', body })
-    if (!data.value?.text)
+    addMessage({ content: '', role: 'assistant' })
+    const { data } = await useFetch('/api/chat', {
+      method: 'POST',
+      body,
+      // responseType: 'stream',
+    })
+    if (!data.value?.content)
       return
-    const { text: responseText } = data.value
-    messages.value[messages.value.length - 1].text = responseText
+    const { content: responseText } = data.value
+    messages.value[messages.value.length - 1].content = responseText
     scrollToBottom()
     if (!state.value.audio.isMuted)
       synthesizeChat(responseText)
+  }
+
+  async function scrollToBottom() {
+    await nextTick()
+    window.scrollTo(0, document.body.scrollHeight)
   }
 
   return {
     state,
     session,
     messages,
+    messageRefs,
+    toggleMessage,
+    retryMessage,
     addSession,
     removeSession,
     addMessage,
-    sendChat,
-  }
-}
-
-export function useRecorder() {
-  const { sendChat } = useChat()
-  const isRecording = ref(false)
-  const recorder = new MicRecorder({ bitRate: 128 })
-
-  const d = new Date()
-  const id = `${d.valueOf()}-${d.getTimezoneOffset()}-${Math.round(Math.random() * 1000)}`
-
-  async function start() {
-    isRecording.value = true
-    recorder.start()
-  }
-  async function stop() {
-    isRecording.value = false
-    const [buffer, blob]: any = await recorder.stop().getMp3()
-
-    if (!buffer || !blob)
-      return
-
-    const inputAudioBlob = new File(buffer, 'input.mp3', {
-      type: blob.type,
-      lastModified: Date.now(),
-    })
-    const formData = new FormData()
-    formData.append('file', inputAudioBlob)
-
-    const { data } = await useFetch('/api/transcribe', {
-      method: 'POST',
-      body: formData,
-      query: { id },
-      // responseType: 'stream',
-    })
-    const text = data.value?.text
-    if (text)
-      sendChat(text)
-  }
-
-  function toggleRecorder() {
-    if (isRecording.value)
-      stop()
-    else
-      start()
-  }
-
-  return {
-    isRecording,
-    toggleRecorder,
+    submitChat,
   }
 }

@@ -12,13 +12,13 @@ export default defineEventHandler(async (event) => {
   if (!resp || !resp.data)
     return { statusCode: 500, message: 'No response' }
 
-  const { data: { text: inputText } } = resp
+  const { data: { text: content } } = resp
 
-  if (!inputText)
-    return { statusCode: 500, message: 'No text' }
+  if (!content)
+    return { statusCode: 500, message: 'No content' }
 
   return {
     statusCode: 200,
-    text: inputText,
+    content,
   }
 })
