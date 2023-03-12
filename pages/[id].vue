@@ -1,5 +1,7 @@
 <script setup lang="ts">
 const { messages, addMessage } = useChat()
+const route = useRoute()
+const { ssrContext } = useNuxtApp()
 
 const systemPrompt = 'You are a helpful assistant.'
 
@@ -11,6 +13,20 @@ onMounted(() => {
     })
   }
 })
+
+watch(
+  () => route.params.id,
+  async () => {
+    if (!ssrContext) {
+      await new Promise(resolve => setTimeout(resolve))
+      window.scrollTo({
+        top: document?.body.scrollHeight,
+        behavior: 'auto',
+      })
+    }
+  },
+  { immediate: true },
+)
 </script>
 
 <template>

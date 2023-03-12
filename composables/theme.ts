@@ -9,10 +9,8 @@ const themes = [
   'halloween',
   'retro',
   'dracula',
-  'cyberpunk',
-  'synthwave',
   'aqua',
-  'night',
+  'synthwave',
 ]
 
 export function useTheme() {

@@ -29,8 +29,8 @@ function onSubmit() {
       <button
         btn h-8 w-8 flex-center
         :class="{
-          'bg-error-content text-error outline-error': !isRecording,
-          'bg-error text-error-content outline-error': isRecording,
+          'bg-error-content text-error hover:outline outline-error': !isRecording,
+          'bg-error text-error-content hover:outline outline-error-content': isRecording,
         }"
         :title="!isRecording ? 'Start Recording' : 'Stop Recording'"
         @click="toggleRecorder"

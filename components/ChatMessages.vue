@@ -39,12 +39,21 @@ function clearSelection() {
   if (window.getSelection)
     window.getSelection()?.empty() || window.getSelection()?.removeAllRanges()
 }
+
+function parse(text: string) {
+  return marked.parse(text, {
+    gfm: true,
+    breaks: true,
+    smartLists: true,
+    smartypants: true,
+  })
+}
 </script>
 
 <template>
   <div
     w-full flex-auto bg-base-100 text-base-content
-    flex flex-col justify-end gap-3 py-3
+    flex flex-col justify-end gap-3 pt-8
   >
     <ClientOnly>
       <template v-for="message, i in messages" :key="message.id">
@@ -70,19 +79,19 @@ function clearSelection() {
             <span v-if="message.role === 'user'" i-ph-user-bold />
           </div>
           <!-- Message Start -->
-          <div relative flex flex-col w-full @dblclick="message.role !== 'assistant' && toggleEdit(message)">
+          <div relative flex flex-col w-full min-w-0 @dblclick="message.role !== 'assistant' && toggleEdit(message)">
             <span
               v-if="message.role === 'system'"
-              text-xs uppercase absolute text-neutral-content text-opacity-50 transition-top
+              text-xs uppercase absolute text-base-content text-opacity-50 transition-top
               :style="{ top: message.isEditing ? '-1.5rem' : 0 }"
               v-text="'System prompt'"
             />
             <template v-if="!message.isEditing">
-              <div v-if="message.text.length" prose :class="{ 'opacity-80': message.role === 'system' }" v-html="marked.parse(message.text)" />
+              <div v-if="message.text.length" prose :class="{ 'opacity-80 font-italic': message.role === 'system' }" v-html="parse(message.text)" />
               <div v-else prose v-html="'<p>...</p>'" />
             </template>
             <template v-else>
-              <TextArea v-model="message.text" tabindex="0" min-h-7 my-4 w-full @submit="toggleEdit(message)" @close="toggleEdit(message, true)" />
+              <TextArea v-model="message.text" tabindex="0" min-h-7 my-4 w-full :class="{ 'font-italic': message.role === 'system' }" @submit="toggleEdit(message)" @close="toggleEdit(message, true)" />
             </template>
           </div>
           <!-- Controls Start -->

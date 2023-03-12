@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
     model: 'gpt-3.5-turbo',
     messages,
     n: 1,
-    max_tokens: 256,
+    max_tokens: 1024, // 4096
     temperature: 0.9,
     // stream: true,
   }
