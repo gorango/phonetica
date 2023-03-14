@@ -3,12 +3,10 @@ import { marked } from 'marked'
 import type { Message } from '~/composables/chat'
 
 const props = defineProps<{ message: Message }>()
-defineExpose({ scrollToMessage })
-
 const message = toRef(props, 'message')
 const state = useLocalState()
 const { breakpoints } = useTheme()
-const { messageRefs, messages, toggleMessage, retryMessage } = useChat()
+const { messageRefs, messages, isEditing, toggleMessage, retryMessage } = useChat()
 const { audioRef, controls, togglePlay } = useAudio(message)
 const editRef = ref()
 
@@ -32,11 +30,11 @@ function parse(text: string) {
   })
 }
 
-function scrollToMessage(message: any) {
-  const el = messageRefs.value[message.id]
-  const previousSibling = el?.previousSibling
-  const top = previousSibling?.offsetTop + previousSibling?.offsetHeight + el?.offsetHeight
-  top && window.scrollTo({ top, behavior: 'smooth' })
+function toggleEdit(event: MouseEvent) {
+  if (event.type === 'contextmenu' && message.value.role === 'user' && !isEditing.value)
+    event.preventDefault()
+  if (!isEditing.value && message.value.role !== 'assistant')
+    toggleMessage(message.value)
 }
 </script>
 
@@ -47,11 +45,10 @@ function scrollToMessage(message: any) {
     w-full flex items-start gap-3 px-3
     class="group"
     :class="{
-      'bg-base-content text-base-300': message.isEditing,
+      'bg-base-content text-base-300': isEditing,
       'bg-base-200': message.role === 'user',
-      'sticky top-14 z-1 cursor-pointer': false,
+      'bg-base-300': false,
     }"
-    @skip="message.role === 'user' && scrollToMessage(message)"
   >
     <!-- Avatar Start -->
     <div
@@ -69,17 +66,17 @@ function scrollToMessage(message: any) {
     <!-- Avatar End -->
 
     <!-- Message Input Start -->
-    <div relative flex flex-col w-full min-w-0 @contextmenu.prevent="!message.isEditing && message.role !== 'assistant' && toggleMessage(message)" @dblclick="!message.isEditing && message.role !== 'assistant' && toggleMessage(message)">
+    <div relative flex flex-col w-full min-w-0 @contextmenu="toggleEdit" @dblclick="toggleEdit">
       <span
         v-if="message.role === 'system'"
         text-xs uppercase absolute text-base-content text-opacity-50 transition-top
         :class="{
-          'bg-gradient-to-r from-primary to-accent bg-clip-text': !message.isEditing,
+          'bg-gradient-to-r from-primary to-accent bg-clip-text': !isEditing,
         }"
-        :style="{ top: message.isEditing ? '-1.5rem' : 0 }"
+        :style="{ top: isEditing ? '-1.5rem' : 0 }"
         v-text="'System prompt'"
       />
-      <template v-if="!message.isEditing">
+      <template v-if="!isEditing">
         <div v-if="message.content.length" prose :class="{ 'opacity-80 font-italic': message.role === 'system' }" v-html="parse(message.content)" />
         <div v-else prose v-html="'<p>...</p>'" />
       </template>
@@ -95,7 +92,7 @@ function scrollToMessage(message: any) {
 
     <!-- Message Controls Start -->
     <div
-      v-if="!message.isEditing"
+      v-if="!isEditing"
       flex-auto h-7 min-w-7 my-4 flex justify-end gap-2
       :class="{ 'invisible group-hover:visible': breakpoints.md && !(messages && messages.length < 4 && message.role === 'system') && !controls.playing.value }"
     >
@@ -127,7 +124,7 @@ function scrollToMessage(message: any) {
         </div>
       </template>
       <template v-if="message.role === 'user'">
-        <button title="Edit message" btn w-7 h-7 hover:bg-neutral hover:text-neutral-content @click="toggleMessage(message)">
+        <button title="Edit message" btn w-7 h-7 hover:bg-neutral hover:text-neutral-content @click="toggleEdit">
           <span i-ph-note-pencil-bold />
         </button>
       </template>
@@ -136,7 +133,7 @@ function scrollToMessage(message: any) {
 
     <!-- Edit Controls Start -->
     <div
-      v-if="message.isEditing"
+      v-if="isEditing"
       flex-auto h-7 my-4 flex justify-end gap-2
     >
       <button title="Update message" btn flex-center w-7 h-7 bg-accent text-accent-content @click="updateMessage()">

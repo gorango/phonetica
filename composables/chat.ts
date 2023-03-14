@@ -20,6 +20,7 @@ export function useChat() {
   const route = useRoute()
   const router = useRouter()
 
+  const isEditing = ref(false)
   const session = computed<Session | undefined>(() => state.value.sessions.find?.(({ id }) => id === route.params.id))
   const messages = computed<Message[] | undefined>(() => session.value?.messages)
 
@@ -55,18 +56,16 @@ export function useChat() {
     scrollToMessage(message)
   }
 
-  function toggleMessage({ id, role, content, isEditing }: Message, cancel = false) {
+  function toggleMessage({ id, role, content }: Message, cancel = false) {
     if (!messages.value?.length || !session.value?.messages?.length)
       return
 
     if (window.getSelection)
       window.getSelection()?.empty() || window.getSelection()?.removeAllRanges()
 
-    messages.value.forEach((message) => {
-      message.isEditing = message.id === id ? !message.isEditing : false
-    })
+    isEditing.value = !isEditing.value
 
-    if (!isEditing) {
+    if (isEditing.value) {
       return nextTick().then(() => {
         messageRefs.value[id]?.querySelector?.('textarea')?.focus()
       })
@@ -143,6 +142,7 @@ export function useChat() {
     session,
     messages,
     messageRefs,
+    isEditing,
     toggleMessage,
     retryMessage,
     addSession,
