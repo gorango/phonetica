@@ -1,5 +1,6 @@
 <script setup lang="ts">
-const { state, addSession, removeSession } = useChat()
+const state = useLocalState()
+const { addSession, removeSession } = useChat()
 const { themes, set } = useTheme()
 const route = useRoute()
 const { ssrContext } = useNuxtApp()
@@ -8,9 +9,15 @@ const { breakpoints } = useTheme()
 const isActiveTheme = ref(false)
 const isActiveSound = ref(false)
 const sessionScrollRef = ref<HTMLDivElement>()
-const { x } = useScroll(sessionScrollRef)
+const { x, arrivedState } = useScroll(sessionScrollRef)
 const isSessionScrollHovered = !ssrContext && useElementHover(sessionScrollRef)
-const scrollX = ({ deltaY }: WheelEvent) => (x.value += deltaY)
+const scrollX = (e: WheelEvent) => {
+  x.value += e.deltaY
+  if ((e.deltaY < 0 && !arrivedState.left) || (e.deltaY > 0 && !arrivedState.right)) {
+    e.preventDefault()
+    e.stopPropagation()
+  }
+}
 
 const sessions = computed(() =>
   state.value?.sessions
@@ -130,8 +137,8 @@ const sessions = computed(() =>
                 <span flex flex-col items-center w-14>{{ state.audio.playbackRate.toFixed(2) }}</span>
                 <button
                   btn h-8 w-8 flex-center bg-base-300 text-base-content
-                  :disabled="state.audio.playbackRate === 3.5"
-                  @click="state.audio.playbackRate = Math.min(state.audio.playbackRate + 0.25, 3.5)"
+                  :disabled="state.audio.playbackRate === 4.5"
+                  @click="state.audio.playbackRate = Math.min(state.audio.playbackRate + 0.25, 4.5)"
                 >
                   <span i-ph-arrow-fat-lines-up-bold />
                 </button>

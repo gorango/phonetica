@@ -9,7 +9,8 @@ export default defineEventHandler(async (event) => {
     return { statusCode: 500, message: 'No body' }
 
   const { content: inputText } = body
-  const { audioContent: audioBase64 }: any = await getAudio(inputText)
+  const sanitizedText = inputText.replace(/`{3}[^`]*`{3}|`/g, '') // remove code blocks, backquotes
+  const { audioContent: audioBase64 }: any = await getAudio(sanitizedText)
 
   return {
     statusCode: 200,

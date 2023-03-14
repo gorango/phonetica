@@ -1,9 +1,10 @@
 import type { ChatCompletionRequestMessage } from 'openai'
 import { nanoid } from 'nanoid'
+import { createAudio } from '~/lib/idb'
 
 export interface Message extends ChatCompletionRequestMessage {
   id: string
-  audio?: Blob
+  hasAudio?: boolean
   isEditing?: boolean
 }
 
@@ -12,27 +13,20 @@ export interface Session {
   messages?: Message[]
 }
 
+const messageRefs = ref<Record<string, any>>({})
+
 export function useChat() {
-  const state = useLocalStorage('phonetica', {
-    audio: {
-      isMuted: false,
-      playbackRate: 1.5,
-    },
-    sessions: [] as Session[],
-  })
+  const state = useLocalState()
   const route = useRoute()
   const router = useRouter()
 
   const session = computed<Session | undefined>(() => state.value.sessions.find?.(({ id }) => id === route.params.id))
   const messages = computed<Message[] | undefined>(() => session.value?.messages)
 
-  const messageRefs = ref<Record<string, any>>({})
-
   function addSession() {
     const id = nanoid(3)
-    if (!state.value.sessions)
-      state.value.sessions = []
-    state.value.sessions.push({ id, messages: [] })
+    const initMessage: Message = { id: nanoid(6), content: 'You are a helpful assistant.', role: 'system' }
+    state.value.sessions.push({ id, messages: [initMessage] })
     router.push(`/${id}`)
   }
 
@@ -43,12 +37,22 @@ export function useChat() {
   }
 
   function addMessage({ content, role }: Pick<Message, 'content' | 'role'>) {
-    if (!session.value)
-      return
-    const message = { content, role, id: nanoid(6) }
-    session.value.messages?.push(message)
-    scrollToBottom()
-    return message
+    if (!messages.value)
+      throw new Error('No session messages')
+    const message: Message = { content, role, id: nanoid(6), hasAudio: false }
+    messages.value.push(message)
+    scrollToMessage(message)
+    return messages.value[messages.value.length - 1]
+  }
+
+  function updateMessage(id: string, payload: Partial<Message>) {
+    if (!messages.value)
+      throw new Error('No session messages')
+    const message = messages.value.find(message => message.id === id)
+    if (!message)
+      throw new Error('No message')
+    Object.assign(message, payload)
+    scrollToMessage(message)
   }
 
   function toggleMessage({ id, role, content, isEditing }: Message, cancel = false) {
@@ -93,50 +97,45 @@ export function useChat() {
     submitChat(prevMessage.content)
   }
 
-  async function synthesizeChat(content: string) {
+  async function synthesizeChat(content: string, id: string) {
     const { data } = await useFetch('/api/synthesize', {
       method: 'POST',
       body: { content },
     })
-    if (!data.value?.audio)
-      return
-    const audioData = atob(data.value?.audio)
-    const bytes = new Uint8Array(audioData.length).map((_, i) => audioData.charCodeAt(i))
-    const outputAudioBlob = new Blob([bytes.buffer], { type: 'audio/mp3' })
-    const url = URL.createObjectURL(outputAudioBlob)
-    const audio = new Audio(url)
-    audio.playbackRate = state.value.audio.playbackRate || 1.5
-    audio.play()
+    const audioBase64 = data.value?.audio
+    await createAudio({ id, file: audioBase64 })
+    return audioBase64
   }
 
   async function submitChat(content: string) {
     if (!content || !content.trim() || !messages.value)
       return
+
     addMessage({ content, role: 'user' })
-    const body = {
-      messages: JSON.stringify(
-        messages.value.map(({ role, content, name }) =>
-          ({ role, content, name }) as ChatCompletionRequestMessage),
-      ),
-    }
-    addMessage({ content: '', role: 'assistant' })
+    const { id: responseId } = addMessage({ content: '', role: 'assistant' })
     const { data } = await useFetch('/api/chat', {
       method: 'POST',
-      body,
+      body: {
+        messages: JSON.stringify(
+          messages.value.map(({ role, content, name }) =>
+            ({ role, content, name }) as ChatCompletionRequestMessage),
+        ),
+      },
       // responseType: 'stream',
     })
-    if (!data.value?.content)
-      return
-    const { content: responseText } = data.value
-    messages.value[messages.value.length - 1].content = responseText
-    scrollToBottom()
-    if (!state.value.audio.isMuted)
-      synthesizeChat(responseText)
+    const responseText = data.value?.content
+    if (!responseText)
+      throw new Error('No response content')
+    updateMessage(responseId, { content: responseText })
+    await synthesizeChat(responseText, responseId)
+    updateMessage(responseId, { hasAudio: true })
   }
 
-  async function scrollToBottom() {
+  async function scrollToMessage({ id }: Message) {
     await nextTick()
-    window.scrollTo(0, document.body.scrollHeight)
+    const el = messageRefs.value[id]
+    const y = el.getBoundingClientRect().top + window.pageYOffset - 56 - 60 - 12 // nav + chat input + padding
+    window.scrollTo({ top: y, behavior: 'smooth' })
   }
 
   return {
