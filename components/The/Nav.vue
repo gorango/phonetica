@@ -106,9 +106,6 @@ const sessions = computed(() =>
                   <span w-2 h-2 bg-accent rounded-full />
                 </button>
               </div>
-              <button v-if="breakpoints.md" btn bg-base-100 h-7 mt-1 @click="state.bgOpacity = state.bgOpacity === 0.08 ? 0 : 0.08">
-                <span i-ph-drop-bold />
-              </button>
             </div>
           </AMenu>
         </button>
