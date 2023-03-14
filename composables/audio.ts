@@ -41,8 +41,7 @@ export function useAudio(message: Ref<Message>) {
   watch(
     () => state.value.audio,
     ({ isMuted, playbackRate }) => {
-      if (isMuted)
-        controls.playing.value = false
+      controls.volume.value = isMuted ? 0 : 1
       controls.rate.value = playbackRate
     },
   )
