@@ -31,7 +31,7 @@ function parse(text: string) {
 }
 
 function toggleEdit(event: MouseEvent) {
-  if (event.type === 'contextmenu' && message.value.role === 'user' && !isEditing.value)
+  if (event.type === 'contextmenu' && ['user', 'system'].includes(message.value.role) && !isEditing.value)
     event.preventDefault()
   if (!isEditing.value && message.value.role !== 'assistant')
     toggleMessage(message.value)
@@ -136,8 +136,13 @@ function toggleEdit(event: MouseEvent) {
       v-if="isEditing"
       flex-auto h-7 my-4 flex justify-end gap-2
     >
-      <button title="Update message" btn flex-center w-7 h-7 bg-accent text-accent-content @click="updateMessage()">
-        <span i-ph-arrows-counter-clockwise-bold text-sm />
+      <button
+        title="Update system prompt"
+        btn flex-center w-7 h-7 bg-accent text-accent-content
+        @click="updateMessage()"
+      >
+        <span v-if="messages && messages.length > 1" i-ph-arrows-counter-clockwise-bold text-sm />
+        <span v-else i-ph-check-bold text-sm />
       </button>
       <button title="Cancel edit" btn flex-center w-7 h-7 bg-base-100 bg-opacity-25 text-base-300 hover:text-base-content @click="toggleMessage(message, true)">
         <span i-ph-x-bold text-sm />
