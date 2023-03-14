@@ -16,6 +16,8 @@ const progress = computed(() => {
   return 128 - (128 * (progress || 1))
 })
 
+const isLoading = computed(() => !message.value.error && !message.value.content?.length)
+
 function updateMessage() {
   const component = editRef.value
   component.submit()
@@ -78,7 +80,8 @@ function toggleEdit(event: MouseEvent) {
       />
       <template v-if="!isEditing">
         <div v-if="message.content.length" prose :class="{ 'opacity-80 font-italic': message.role === 'system' }" v-html="parse(message.content)" />
-        <div v-else prose v-html="'<p>...</p>'" />
+        <div v-else-if="message.error" prose opacity-80 text-error font-italic v-text="message.error" />
+        <div v-else my-4 v-text="'...'" />
       </template>
       <template v-else>
         <ATextArea
@@ -94,15 +97,18 @@ function toggleEdit(event: MouseEvent) {
     <div
       v-if="!isEditing"
       flex-auto h-7 min-w-7 my-4 flex justify-end gap-2
-      :class="{ 'invisible group-hover:visible': breakpoints.md && !(messages && messages.length < 4 && message.role === 'system') && !controls.playing.value }"
+      :class="{ 'invisible group-hover:visible': !isLoading && !message.error && breakpoints.md && !(messages && messages.length < 4 && message.role === 'system') && !controls.playing.value }"
     >
+      <template v-if="isLoading">
+        <span i-ph-circle-notch-bold text-xl animate-spin animate-duration-2000 />
+      </template>
       <template v-if="message.role === 'system'">
-        <button title="Edit system prompt" btn w-7 h-7 hover:bg-neutral hover:text-neutral-content @click="toggleMessage(message)">
+        <button title="Edit system prompt" btn min-w-7 h-7 hover:bg-neutral hover:text-neutral-content @click="toggleMessage(message)">
           <span i-ph-note-pencil-bold />
         </button>
       </template>
       <template v-if="message.role === 'assistant'">
-        <button v-if="!message.content" title="Reload response" btn w-7 h-7 hover:bg-neutral hover:text-neutral-content @click="retryMessage(message)">
+        <button v-if="message.error" title="Reload response" btn min-w-7 h-7 text-error hover:bg-neutral hover:text-neutral-content @click="retryMessage(message)">
           <span i-ph-arrows-counter-clockwise-bold />
         </button>
         <div v-if="message.hasAudio && !state.audio.isMuted" relative>
@@ -117,14 +123,14 @@ function toggleEdit(event: MouseEvent) {
               stroke-base-content
             />
           </svg>
-          <button title="Play audio" btn w-7 h-7 hover:bg-neutral hover:text-neutral-content @click="togglePlay()">
+          <button title="Play audio" btn min-w-7 h-7 hover:bg-neutral hover:text-neutral-content @click="togglePlay()">
             <span v-if="!controls?.playing.value" i-ph-play-bold />
             <span v-else i-ph-pause-bold />
           </button>
         </div>
       </template>
       <template v-if="message.role === 'user'">
-        <button title="Edit message" btn w-7 h-7 hover:bg-neutral hover:text-neutral-content @click="toggleEdit">
+        <button title="Edit message" btn min-w-7 h-7 hover:bg-neutral hover:text-neutral-content @click="toggleEdit">
           <span i-ph-note-pencil-bold />
         </button>
       </template>

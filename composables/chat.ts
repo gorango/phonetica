@@ -4,6 +4,7 @@ import { createAudio } from '~/lib/idb'
 
 export interface Message extends ChatCompletionRequestMessage {
   id: string
+  error?: string
   hasAudio?: boolean
   isEditing?: boolean
 }
@@ -121,10 +122,14 @@ export function useChat() {
         ),
       },
       // responseType: 'stream',
+    }).catch((error) => {
+      updateMessage(responseId, { error: error.message })
     })
     const responseText = data.value?.content
-    if (!responseText)
+    if (!responseText) {
+      updateMessage(responseId, { error: 'No response content' })
       throw new Error('No response content')
+    }
     updateMessage(responseId, { content: responseText })
     await synthesizeChat(responseText, responseId)
     updateMessage(responseId, { hasAudio: true })
