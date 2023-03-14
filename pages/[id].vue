@@ -1,23 +1,16 @@
 <script setup lang="ts">
-const { messages, addMessage } = useChat()
 const route = useRoute()
+const router = useRouter()
+const { session } = useChat()
 const { ssrContext } = useNuxtApp()
-
-onMounted(() => {
-  if (!messages.value?.length) {
-    addMessage({
-      content: 'You are a helpful assistant.',
-      role: 'system',
-    })
-  }
-})
 
 watch(
   () => route.params.id,
   async () => {
     if (!ssrContext) {
       await new Promise(resolve => setTimeout(resolve))
-      window.scrollTo({ top: document?.body.scrollHeight })
+      window.scrollTo({ top: document?.body.scrollHeight, behavior: 'auto' })
+      !session.value && router.replace('/')
     }
   },
   { immediate: true },

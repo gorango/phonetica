@@ -90,7 +90,16 @@
   -webkit-hyphens: none;
   -moz-hyphens: none;
   hyphens: none;
-  background: hsla(var(--b3), 0.5);
+}
+:is([prose=""],.prose) :where(pre) {
+  background: hsla(var(--n), 1);
+  color: hsla(var(--nc), 1);
+}
+:is([prose=""],.prose) :where(code:not(pre code)) {
+  background: hsla(var(--n), 1);
+  color: hsla(var(--nc), 1);
+  padding: .1em .25em;
+  border-radius: .25em;
 }
 :is([prose=""],.prose) :where(pre code) {
   font-weight: inherit;

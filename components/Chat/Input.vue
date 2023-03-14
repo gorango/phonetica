@@ -5,6 +5,8 @@ const { submitChat } = useChat()
 const inputRef = ref()
 const input = ref('')
 
+onMounted(() => inputRef.value.focus())
+
 function onSubmit(hydrate = false) {
   if (hydrate) {
     const component = inputRef.value
@@ -20,7 +22,7 @@ function onSubmit(hydrate = false) {
     sticky bottom-0 flex items-end gap-2 py-2 px-3 w-full z-2
     bg-base-300 text-base-content
   >
-    <ATextArea ref="inputRef" v-model="input" self-center @submit="onSubmit(false)" />
+    <ATextArea ref="inputRef" v-model="input" self-center @submit="onSubmit()" />
     <button
       btn h-10 w-10 flex-center
       hover:bg-neutral hover:text-neutral-content
@@ -34,7 +36,7 @@ function onSubmit(hydrate = false) {
         btn h-10 w-10 flex-center rounded-full
         bg-error text-error-content hover:outline outline-error-content
         :class="{ 'animate-pulse': isRecording }"
-        :title="!isRecording ? 'Start Dictating' : 'Stop Dictating'"
+        :title="!isRecording ? 'Start Recording' : 'Stop Recording'"
         @click="toggleRecorder"
       >
         <span v-if="!isRecording" i-ph-microphone-bold text-lg />

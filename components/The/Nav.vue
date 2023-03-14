@@ -61,7 +61,7 @@ const sessions = computed(() =>
               :class="{
                 'bg-primary text-primary-content': session.isActive,
                 'bg-base-100 text-base-content group-hover:bg-neutral group-hover:text-neutral-content group-hover:text-opacity-100': !session.isActive,
-                'bg-opacity-15 text-opacity-15 focus:bg-opacity-100 focus:text-opacity-100': !session.isActive && !isSessionScrollHovered,
+                'bg-opacity-15 text-opacity-15 focus:bg-opacity-100 focus:text-opacity-100': !session.isActive && !isSessionScrollHovered && breakpoints.md,
               }"
               :title="`${session.isActive ? 'Current' : 'View'} Chat`"
               @click="$router.push(session.id)"
@@ -93,16 +93,21 @@ const sessions = computed(() =>
         >
           <span i-ph-paint-brush-bold font-2xl />
           <AMenu v-model="isActiveTheme" placement="bottom-end" target="#theme-container" persist="content">
-            <div bg-neutral my-2 rounded grid grid-cols-2 p-1 gap-1 w-32 @click.stop.prevent>
-              <button
-                v-for="theme in themes" :key="theme"
-                :data-theme="theme"
-                btn h-8 w-full whitespace-nowrap flex-center flex-nowrap gap-1 px-2 py-1
-                @click.stop.prevent="set(theme)"
-              >
-                <span w-3 h-3 bg-primary rounded-full />
-                <span w-2 h-2 bg-secondary rounded-full />
-                <span w-2 h-2 bg-accent rounded-full />
+            <div bg-neutral my-2 rounded p-1 w-32 flex flex-col @click.stop.prevent>
+              <div grid grid-cols-2 gap-1>
+                <button
+                  v-for="theme in themes" :key="theme"
+                  :data-theme="theme"
+                  btn h-8 w-full whitespace-nowrap flex-center flex-nowrap gap-1 px-2 py-1
+                  @click.stop.prevent="set(theme)"
+                >
+                  <span w-3 h-3 bg-primary rounded-full />
+                  <span w-2 h-2 bg-secondary rounded-full />
+                  <span w-2 h-2 bg-accent rounded-full />
+                </button>
+              </div>
+              <button v-if="breakpoints.md" btn bg-base-100 h-7 mt-1 @click="state.bgOpacity = state.bgOpacity === 0.08 ? 0 : 0.08">
+                <span i-ph-drop-bold />
               </button>
             </div>
           </AMenu>

@@ -7,6 +7,7 @@ defineExpose({ scrollToMessage })
 
 const message = toRef(props, 'message')
 const state = useLocalState()
+const { breakpoints } = useTheme()
 const { messageRefs, messages, toggleMessage, retryMessage } = useChat()
 const { audioRef, controls, togglePlay } = useAudio(message)
 const editRef = ref()
@@ -96,7 +97,7 @@ function scrollToMessage(message: any) {
     <div
       v-if="!message.isEditing"
       flex-auto h-7 min-w-7 my-4 flex justify-end gap-2
-      :class="{ 'invisible group-hover:visible': !(messages && messages.length < 4 && message.role === 'system') && !controls.playing.value }"
+      :class="{ 'invisible group-hover:visible': breakpoints.md && !(messages && messages.length < 4 && message.role === 'system') && !controls.playing.value }"
     >
       <template v-if="message.role === 'system'">
         <button title="Edit system prompt" btn w-7 h-7 hover:bg-neutral hover:text-neutral-content @click="toggleMessage(message)">

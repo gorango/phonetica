@@ -4,7 +4,7 @@ const emit = defineEmits(['update:modelValue', 'submit', 'close'])
 
 const textareaRef = ref<HTMLTextAreaElement>()
 const cloneValue = ref('')
-defineExpose({ submit, textareaRef })
+defineExpose({ submit, focus, textareaRef })
 
 onKeyStroke('Enter', (e) => {
   if (!e.shiftKey) {
@@ -37,6 +37,10 @@ function submit() {
   emit('update:modelValue', cloneValue.value)
   emit('submit')
   cloneValue.value = ''
+}
+
+function focus() {
+  textareaRef.value?.focus()
 }
 
 function onInput(event: Event) {
