@@ -26,10 +26,10 @@ export default defineConfig({
     }),
     presetWebFonts({
       fonts: {
-        sans: 'DM Sans',
-        serif: 'DM Serif Display',
-        mono: 'DM Mono',
+        sans: 'Ubuntu',
+        mono: 'Ubuntu Mono',
       },
+      provider: 'google',
     }),
     presetDaisy(),
   ],

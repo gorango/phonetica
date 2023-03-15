@@ -42,7 +42,7 @@ function toggleEdit(event: MouseEvent) {
   <div
     v-if="message"
     :ref="el => messageRefs[message.id] = el"
-    w-full flex items-start gap-3 px-3
+    w-full flex items-start gap-3 px-3 overflow-x-scroll
     class="group"
     :class="{
       'bg-base-content text-base-300': isEditing,
