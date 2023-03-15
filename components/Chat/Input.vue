@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const { isRecording, toggleRecorder } = useRecorder()
-const { submitChat } = useChat()
+const { isLoading, submitChat } = useChat()
 
 const inputRef = ref()
 const input = ref('')
@@ -8,6 +8,8 @@ const input = ref('')
 onMounted(() => inputRef.value.focus())
 
 function onSubmit(hydrate = false) {
+  if (isLoading.value)
+    return
   if (hydrate) {
     const component = inputRef.value
     return component.submit()
@@ -27,6 +29,7 @@ function onSubmit(hydrate = false) {
       btn h-10 w-10 flex-center
       hover:bg-neutral hover:text-neutral-content
       title="Send"
+      :disabled="!!isLoading"
       @click="onSubmit(true)"
     >
       <span i-ph-paper-plane-tilt-bold text-lg />
@@ -37,6 +40,7 @@ function onSubmit(hydrate = false) {
         bg-error text-error-content hover:outline outline-error-content
         :class="{ 'animate-pulse': isRecording }"
         :title="!isRecording ? 'Start Recording' : 'Stop Recording'"
+        :disabled="!!isLoading"
         @click="toggleRecorder"
       >
         <span v-if="!isRecording" i-ph-microphone-bold text-lg />

@@ -29,6 +29,7 @@
     "nuxt": "3.2.3",
     "openai": "^3.2.1",
     "pinia": "^2.0.33",
+    "sse.js": "^0.6.1",
     "typescript": "^4.9.5",
     "unocss-preset-daisy": "^2.0.0"
   }

@@ -21,6 +21,7 @@ specifiers:
   nuxt: 3.2.3
   openai: ^3.2.1
   pinia: ^2.0.33
+  sse.js: ^0.6.1
   typescript: ^4.9.5
   unocss-preset-daisy: ^2.0.0
 
@@ -45,6 +46,7 @@ devDependencies:
   nuxt: 3.2.3_ycpbpc6yetojsgtrx3mwntkhsu
   openai: 3.2.1
   pinia: 2.0.33_typescript@4.9.5
+  sse.js: 0.6.1
   typescript: 4.9.5
   unocss-preset-daisy: 2.0.0_@kidonng+daisyui@2.51.3
 
@@ -8456,6 +8458,10 @@ packages:
 
   /spdx-license-ids/3.0.12:
     resolution: {integrity: sha512-rr+VVSXtRhO4OHbXUiAF7xW3Bo9DuuF6C5jH+q/x15j2jniycgKbxU09Hr0WqlSLUs4i4ltHGXqTe7VHclYWyA==}
+    dev: true
+
+  /sse.js/0.6.1:
+    resolution: {integrity: sha512-peXG6GnWqF5hnubhMw0WfB6rqQy7z7LaMBT067vqgQwC3gKz8JGFzexBSV80FqZ9JoUDwo3Xt5nxkrGrgbPrtA==}
     dev: true
 
   /stable/0.1.8:

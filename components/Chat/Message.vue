@@ -6,7 +6,7 @@ const props = defineProps<{ message: Message }>()
 const message = toRef(props, 'message')
 const state = useLocalState()
 const { breakpoints } = useTheme()
-const { messageRefs, messages, isEditing, toggleMessage, retryMessage } = useChat()
+const { messageRefs, messages, liveResponse, isEditing, isLoading, toggleMessage, retryMessage } = useChat()
 const { audioRef, controls, togglePlay } = useAudio(message)
 const editRef = ref()
 
@@ -15,8 +15,6 @@ const progress = computed(() => {
   const progress = currentTime.value / duration.value
   return 128 - (128 * (progress || 1))
 })
-
-const isLoading = computed(() => !message.value.error && !message.value.content?.length)
 
 function updateMessage() {
   const component = editRef.value
@@ -79,8 +77,8 @@ function toggleEdit(event: MouseEvent) {
         v-text="'System prompt'"
       />
       <template v-if="!isEditing">
-        <div v-if="message.content.length" prose :class="{ 'opacity-80 font-italic': message.role === 'system' }" v-html="parse(message.content)" />
-        <div v-else-if="message.error" prose opacity-80 text-error font-italic v-text="message.error" />
+        <div v-if="message.content.length" prose :class="{ 'opacity-80 font-italic': message.role === 'system' }" v-html="parse(liveResponse || message.content)" />
+        <div v-else-if="message.error" prose my-4 opacity-80 text-error font-italic v-text="message.error" />
         <div v-else my-4 v-text="'...'" />
       </template>
       <template v-else>
@@ -99,7 +97,7 @@ function toggleEdit(event: MouseEvent) {
       flex-auto h-7 min-w-7 my-4 flex justify-end gap-2
       :class="{ 'invisible group-hover:visible': !isLoading && !message.error && breakpoints.md && !(messages && messages.length < 4 && message.role === 'system') && !controls.playing.value }"
     >
-      <template v-if="isLoading">
+      <template v-if="isLoading === message.id">
         <span i-ph-circle-notch-bold text-xl animate-spin animate-duration-2000 />
       </template>
       <template v-if="message.role === 'system'">
