@@ -40,3 +40,7 @@ Check out `"scripts"` in `package.json` for available actions for development an
 [google]: https://console.cloud.google.com
 [tts]: https://console.cloud.google.com/apis/api/texttospeech.googleapis.com
 [translate]: https://console.cloud.google.com/apis/api/translate.googleapis.com
+
+## License
+
+[MIT](/license)
