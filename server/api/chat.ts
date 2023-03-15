@@ -1,26 +1,31 @@
 import type { ChatCompletionRequestMessage, CreateChatCompletionRequest } from 'openai'
+import { Configuration, OpenAIApi } from 'openai'
 
 export default defineEventHandler(async (event) => {
-  const messages: ChatCompletionRequestMessage[] = await readBody(event)
+  const body = await readBody(event)
+  const openai = new OpenAIApi(new Configuration({ apiKey: process.env.GPT_KEY }))
 
-  if (!messages.length)
+  if (!body || !body.messages)
     return { statusCode: 500, message: 'No messages' }
+
+  const messages: ChatCompletionRequestMessage[] = JSON.parse(body.messages)
 
   const completionOpts: CreateChatCompletionRequest = {
     model: 'gpt-3.5-turbo',
     messages,
     n: 1,
-    max_tokens: 256, // 4096
+    max_tokens: 512, // 4096
     temperature: 0.9,
-    stream: true,
   }
 
-  return $fetch('https://api.openai.com/v1/chat/completions', {
-    headers: {
-      'Authorization': `Bearer ${process.env.GPT_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    method: 'POST',
-    body: JSON.stringify(completionOpts),
-  })
+  const response = await openai.createChatCompletion(completionOpts)
+  const responseText = response.data?.choices[0]?.message?.content
+
+  if (response.status !== 200 || !responseText)
+    return { statusCode: 500, message: 'No response from OpenAI' }
+
+  return {
+    statusCode: 200,
+    content: responseText,
+  }
 })

@@ -1,6 +1,5 @@
 import type { ChatCompletionRequestMessage } from 'openai'
 import { nanoid } from 'nanoid'
-import { SSE } from 'sse.js'
 import { createAudio } from '~/lib/idb'
 
 export interface Message extends ChatCompletionRequestMessage {
@@ -16,7 +15,6 @@ export interface Session {
 }
 
 const messageRefs = ref<Record<string, any>>({})
-const liveResponses = new Map()
 const isLoading = ref<string | undefined>(undefined)
 
 export function useChat() {
@@ -27,7 +25,6 @@ export function useChat() {
   const isEditing = ref(false)
   const session = computed<Session | undefined>(() => state.value.sessions.find?.(({ id }) => id === route.params.id))
   const messages = computed<Message[] | undefined>(() => session.value?.messages)
-  const liveResponse = computed(() => liveResponses.get(session.value?.id))
 
   function addSession() {
     const id = nanoid(3)
@@ -106,49 +103,39 @@ export function useChat() {
       method: 'POST',
       body: { content },
     })
-    const audioBase64 = data.value?.audio
+    if (!data.value || !('audio' in data.value))
+      throw new Error('No audio')
+    const audioBase64 = data.value.audio as string
     await createAudio({ id, file: audioBase64 })
     return audioBase64
   }
 
-  function submitChat(content: string) {
-    if (!content || !content.trim() || !session.value || !messages.value)
+  async function submitChat(content: string) {
+    if (!content || !content.trim() || !messages.value)
       return
 
     addMessage({ content, role: 'user' })
-    const eventSource = new SSE('/api/chat', {
-      method: 'POST',
-      payload: JSON.stringify(
-        messages.value.map(({ role, content, name }) =>
-          ({ role, content, name }) as ChatCompletionRequestMessage),
-      ),
-    })
     const { id: responseId } = addMessage({ content: '', role: 'assistant' })
     isLoading.value = responseId
-    let responseText = ''
-    eventSource.addEventListener('error', () => {
-      updateMessage(responseId, { error: 'Broken stream' })
+    const { data } = await useFetch('/api/chat', {
+      method: 'POST',
+      body: {
+        messages: JSON.stringify(
+          messages.value.map(({ role, content, name }) =>
+            ({ role, content, name }) as ChatCompletionRequestMessage),
+        ),
+      },
+    })
+    if (!data.value || !('content' in data.value)) {
+      updateMessage(responseId, { error: 'No response content' })
       isLoading.value = undefined
-    })
-    eventSource.addEventListener('message', ({ data }) => {
-      if (data === '[DONE]') {
-        updateMessage(responseId, { content: responseText })
-        synthesizeChat(responseText, responseId).then(() => {
-          updateMessage(responseId, { hasAudio: true })
-        })
-        liveResponses.delete(session.value?.id)
-        isLoading.value = undefined
-        return
-      }
-
-      const completionResponse: any = JSON.parse(data)
-      const text = completionResponse.choices[0]?.delta?.content
-      if (text) {
-        responseText = (responseText || '') + text
-        liveResponses.set(session.value?.id, responseText)
-      }
-    })
-    eventSource.stream()
+      throw new Error('No response content')
+    }
+    const responseText = data.value?.content
+    updateMessage(responseId, { content: responseText })
+    await synthesizeChat(responseText, responseId)
+    updateMessage(responseId, { hasAudio: true })
+    isLoading.value = undefined
   }
 
   async function scrollToMessage({ id }: Message) {
@@ -162,7 +149,6 @@ export function useChat() {
     state,
     session,
     messages,
-    liveResponse,
     messageRefs,
     isEditing,
     isLoading,

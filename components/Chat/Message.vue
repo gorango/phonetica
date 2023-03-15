@@ -6,7 +6,7 @@ const props = defineProps<{ message: Message }>()
 const message = toRef(props, 'message')
 const state = useLocalState()
 const { breakpoints } = useTheme()
-const { messageRefs, messages, liveResponse, isEditing, isLoading, toggleMessage, retryMessage } = useChat()
+const { messageRefs, messages, isEditing, isLoading, toggleMessage, retryMessage } = useChat()
 const { audioRef, controls, togglePlay } = useAudio(message)
 const editRef = ref()
 
@@ -77,7 +77,7 @@ function toggleEdit(event: MouseEvent) {
         v-text="'System prompt'"
       />
       <template v-if="!isEditing">
-        <div v-if="message.content.length" prose :class="{ 'opacity-80 font-italic': message.role === 'system' }" v-html="parse(liveResponse || message.content)" />
+        <div v-if="message.content.length" prose :class="{ 'opacity-80 font-italic': message.role === 'system' }" v-html="parse(message.content)" />
         <div v-else-if="message.error" prose my-4 opacity-80 text-error font-italic v-text="message.error" />
         <div v-else my-4 v-text="'...'" />
       </template>
