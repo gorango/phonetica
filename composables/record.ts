@@ -28,6 +28,8 @@ export function useRecorder() {
       method: 'POST',
       body: formData,
     })
+    if (!data.value || !('content' in data.value))
+      throw new Error('No content returned from transcribe API')
     const content = data.value?.content
     if (content)
       submitChat(content)

@@ -28,6 +28,9 @@ export function useChat() {
 
   function addSession() {
     const id = nanoid(3)
+    const lastSession = state.value.sessions[state.value.sessions.length - 1]
+    if (lastSession?.messages?.length === 1)
+      return router.push(`/${lastSession.id}`)
     const initMessage: Message = { id: nanoid(6), content: 'You are a helpful assistant.', role: 'system' }
     state.value.sessions.push({ id, messages: [initMessage] })
     router.push(`/${id}`)
@@ -35,8 +38,9 @@ export function useChat() {
 
   function removeSession(id: string) {
     state.value.sessions = state.value.sessions.filter(session => session.id !== id)
+    const prevSession = state.value.sessions[state.value.sessions.length - 1]
     if (route.params.id === id)
-      router.replace('/')
+      router.replace(`/${prevSession.id}` || '/')
   }
 
   function addMessage({ content, role }: Pick<Message, 'content' | 'role'>) {
