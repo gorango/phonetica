@@ -5,7 +5,7 @@
   <main flex min-h-screen w-full>
     <div
       flex-auto flex flex-col max-w-3xl w-full mx-auto
-      bg-base-100 shadow-2xl shadow-neutral shadow-opacity-50
+      bg-base-100 shadow-2xl shadow-neutral shadow-opacity-75
     >
       <TheNav />
       <slot />

@@ -1,11 +1,12 @@
 <script setup lang="ts">
 const { isRecording, toggleRecorder } = useRecorder()
 const { isLoading, submitChat } = useChat()
+const { breakpoints } = useTheme()
 
 const inputRef = ref()
 const input = ref('')
 
-onMounted(() => inputRef.value.focus())
+onMounted(() => breakpoints.md && inputRef.value.focus())
 
 function onSubmit(hydrate = false) {
   if (isLoading.value)

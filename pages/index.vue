@@ -5,10 +5,16 @@ const router = useRouter()
 
 onMounted(() => {
   if (!route.params.id) {
-    if (state.value?.sessions.length)
-      router.replace(state.value.sessions[state.value.sessions.length - 1].id)
-    else
+    if (state.value?.sessions.length) {
+      const session = state.value.sessions[state.value.sessions.length - 1]
+      if (session.messages && session.messages?.length > 1)
+        addSession()
+      else
+        router.replace(session.id)
+    }
+    else {
       addSession()
+    }
   }
 })
 </script>
