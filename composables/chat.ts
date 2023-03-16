@@ -141,7 +141,7 @@ export function useChat() {
   async function scrollToMessage({ id }: Message) {
     await nextTick()
     const el = messageRefs.value[id]
-    const y = el.getBoundingClientRect().top + window.pageYOffset - 56 - 60 - 12 // nav + chat input + padding
+    const y = el.getBoundingClientRect().top + window.pageYOffset - 56 - 24
     window.scrollTo({ top: y, behavior: 'smooth' })
   }
 
@@ -158,5 +158,6 @@ export function useChat() {
     removeSession,
     addMessage,
     submitChat,
+    scrollToMessage,
   }
 }

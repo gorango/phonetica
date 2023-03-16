@@ -18,14 +18,12 @@ watch(
 </script>
 
 <template>
-  <div flex-auto self-center flex flex-col relative w-full h-full bg-base-100>
-    <ClientOnly>
-      <AScrollTo dir="t" />
-    </ClientOnly>
-    <ChatMessages />
-    <ClientOnly>
-      <AScrollTo dir="b" />
-    </ClientOnly>
-    <ChatInput />
-  </div>
+  <ClientOnly>
+    <AScrollTo dir="t" />
+  </ClientOnly>
+  <ChatMessages />
+  <ClientOnly>
+    <AScrollTo dir="b" />
+  </ClientOnly>
+  <ChatInput />
 </template>

@@ -5,7 +5,7 @@ const { messages } = useChat()
 <template>
   <div
     w-full flex-auto bg-base-100 text-base-content
-    flex flex-col justify-end gap-3 pt-8 pb-4 overflow-hidden
+    flex flex-col justify-end gap-3 pt-8 pb-4
   >
     <ClientOnly>
       <ChatMessage v-for="message in messages" :key="message.id" :message="message" />

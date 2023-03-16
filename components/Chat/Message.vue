@@ -6,7 +6,7 @@ const props = defineProps<{ message: Message }>()
 const message = toRef(props, 'message')
 const state = useLocalState()
 const { breakpoints } = useTheme()
-const { messageRefs, messages, isEditing, isLoading, toggleMessage, retryMessage } = useChat()
+const { messageRefs, messages, isEditing, isLoading, toggleMessage, retryMessage, scrollToMessage } = useChat()
 const { audioRef, controls, togglePlay } = useAudio(message)
 const editRef = ref()
 
@@ -42,7 +42,7 @@ function toggleEdit(event: MouseEvent) {
   <div
     v-if="message"
     :ref="el => messageRefs[message.id] = el"
-    w-full flex items-start gap-3 px-3 overflow-x-scroll
+    w-full flex items-start gap-3 px-3
     class="group"
     :class="{
       'bg-base-content text-base-300': isEditing,
@@ -51,18 +51,20 @@ function toggleEdit(event: MouseEvent) {
     }"
   >
     <!-- Avatar Start -->
-    <div
-      min-w-7 h-7 my-4 rounded-full flex-center
+    <button
+      sticky top-16 min-w-7 h-7 my-4 rounded-full flex-center
+      tabindex="-1"
       :class="{
         'bg-gradient-to-l from-primary to-accent text-primary-content': message.role === 'system',
         'bg-secondary text-secondary-content': message.role === 'assistant',
         'bg-base-100 text-base-content': message.role === 'user',
       }"
+      @click="scrollToMessage(message)"
     >
       <span v-if="message.role === 'system'" i-ph-brain-bold />
       <span v-if="message.role === 'assistant'" i-ph-brain-bold />
       <span v-if="message.role === 'user'" i-ph-user-bold />
-    </div>
+    </button>
     <!-- Avatar End -->
 
     <!-- Message Input Start -->
@@ -94,7 +96,7 @@ function toggleEdit(event: MouseEvent) {
     <!-- Message Controls Start -->
     <div
       v-if="!isEditing"
-      flex-auto h-7 min-w-7 my-4 flex justify-end gap-2
+      sticky top-16 flex-auto h-7 min-w-7 my-4 flex justify-end gap-2
       :class="{ 'invisible group-hover:visible': !isLoading && !message.error && breakpoints.md && !(messages && messages.length < 4 && message.role === 'system') && !controls.playing.value }"
     >
       <template v-if="isLoading === message.id">
