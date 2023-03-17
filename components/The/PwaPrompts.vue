@@ -1,11 +1,12 @@
 <script setup lang="ts">
 const { $pwa } = useNuxtApp()
 const state = useLocalState()
+const { breakpoints } = useTheme()
 
 const showWorkerPrompt = computed(() => $pwa?.offlineReady || $pwa?.needRefresh)
 const showInstallPrompt = computed(() => {
-  const isVirgin = new Date(state.value.createdAt).valueOf() > (Date.now() - 1000 * 60 * 5)
-  return !isVirgin && $pwa?.showInstallPrompt && !$pwa?.offlineReady && !$pwa?.needRefresh
+  const isVirgin = new Date(state.value.createdAt).valueOf() > (Date.now() - 1000 * 60 * 60 * 24 * 5)
+  return !breakpoints.md && !isVirgin && $pwa?.showInstallPrompt && !$pwa?.offlineReady && !$pwa?.needRefresh
 })
 
 onKeyStroke('Escape', () => {
