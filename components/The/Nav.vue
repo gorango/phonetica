@@ -9,7 +9,7 @@ const { breakpoints } = useTheme()
 const isActiveTheme = ref(false)
 const isActiveSound = ref(false)
 const sessionScrollRef = ref<HTMLDivElement>()
-const { x, arrivedState } = useScroll(sessionScrollRef)
+const { x, arrivedState } = useScroll(sessionScrollRef, { behavior: 'auto' })
 const isSessionScrollHovered = !ssrContext && useElementHover(sessionScrollRef)
 const scrollX = (e: WheelEvent) => {
   x.value += e.deltaY
@@ -50,7 +50,7 @@ const sessions = computed(() =>
       <!-- Chats Menu Start -->
       <section
         ref="sessionScrollRef"
-        flex-auto flex items-center gap-1 overflow-x-auto scroll-smooth py-2 mx--2
+        flex-auto flex items-center gap-1 overflow-x-auto py-2 mx--2
         @mousewheel="scrollX"
       >
         <div left-0 sticky z-1 h-10 min-w-6 bg-gradient-to-r from-base-300 to-transparent />
